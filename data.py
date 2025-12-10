@@ -30,6 +30,6 @@ def prepare_dataset():
         }
     ]
 
-    dataset = dataset.add_column("prompt", [messages] * len(dataset))
+    dataset = dataset.add_column("prompt", [messages] * len(dataset)) # type: ignore
 
     return dataset

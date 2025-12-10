@@ -1,4 +1,11 @@
 # --------------------
+# Logging
+# --------------------
+use_wandb: true
+project: "Spot_difference_VLM"
+run_name: "test"
+
+# --------------------
 # Model
 # --------------------
 model_name: "unsloth/Qwen2.5-VL-7B-Instruct"
@@ -36,4 +43,3 @@ max_prompt_length: 1024
 max_completion_length: 1024
 num_train_epochs: 2.0
 max_grad_norm: 0.1
-report_to: "none"

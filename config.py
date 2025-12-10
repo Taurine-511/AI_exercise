@@ -6,6 +6,11 @@ import yaml
 
 @dataclass
 class Config:
+    # wandb
+    use_wandb: bool = False
+    project: str = "Spot_difference_VLM"
+    run_name: str = "test"
+
     # Model
     model_name: str = "unsloth/Qwen2.5-VL-7B-Instruct"
     max_seq_length: int = 32768
@@ -54,6 +59,7 @@ class Config:
         base_name = path.stem
         cfg.output_dir = f"outputs/{base_name}"
         cfg.learning_rate = float(cfg.learning_rate)
+        cfg.report_to = "wandb" if cfg.use_wandb else "none"
 
         return cfg
 
@@ -66,7 +72,6 @@ class Config:
             "gpu_memory_utilization",
         ]
         full = asdict(self)
-        print(full)
         return {k: full[k] for k in keys}
 
     def get_lora_config(self):

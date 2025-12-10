@@ -2,10 +2,12 @@
 venv/
 .ruff_cache/
 __pycache__/
+wandb/
 
 grpo_trainer_lora_model/
 outputs/
 unsloth_compiled_cache/
 
 
+.env
 .DS_Store
