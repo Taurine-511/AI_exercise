@@ -1,6 +1,11 @@
 # AI_exercise
 
 ### セットアップ
+グローバルにuvを追加します
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
 最初に仮想環境を作成してライブラリをインストールします。
 ```bash
 uv venv
