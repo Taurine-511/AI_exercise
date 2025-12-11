@@ -68,7 +68,7 @@ def iou_reward(prompts, completions, **kwargs):
             answer = json.loads(answer_block)
             score = score_max_iou(answer, labels) / len(labels)
             scores.append(score)
-        except json.JSONDecodeError:
+        except:
             scores.append(0.0)
 
     return scores
@@ -100,7 +100,7 @@ def ioa_reward(prompts, completions, right_labels, **kwargs):
             answer = json.loads(answer_block)
             score = score_max_ioa(answer, labels) / len(labels)
             scores.append(score)
-        except json.JSONDecodeError:
+        except:
             scores.append(0.0)
 
     return scores
