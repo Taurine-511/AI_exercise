@@ -11,3 +11,4 @@ unsloth_compiled_cache/
 
 .env
 .DS_Store
+*.log

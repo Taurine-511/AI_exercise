@@ -7,7 +7,7 @@ from trl import GRPOConfig, GRPOTrainer # type: ignore
 import wandb
 from config import Config
 from data import prepare_dataset
-from rewards import format_reward
+from rewards import format_reward, iou_reward
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -36,9 +36,9 @@ if __name__ == "__main__":
     # Trainer
     trainer = GRPOTrainer(
         model=model,
-        args=GRPOConfig(**cfg.get_training_config()),
+        args=GRPOConfig(reward_weights=[1, 10], **cfg.get_training_config()),
         processing_class=tokenizer,
-        reward_funcs=[format_reward],
+        reward_funcs=[format_reward, iou_reward],
         train_dataset=dataset,
     )
 

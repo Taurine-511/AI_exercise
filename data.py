@@ -1,4 +1,4 @@
-from datasets import load_dataset
+from datasets import load_dataset, Dataset
 
 user_prompt = """
 You are given two images: a reference image (Image A) and a modified image (Image B).
@@ -6,8 +6,8 @@ Identify all visual differences between Image A and Image B.
 Output each detected target's bbox coordinates in JSON format. The format of the bbox coordinates is:
 
 [
-    "bbox_2d": [x1, y1, x2, y2], ”label”: ”target name”,
-    "bbox_2d": [x1, y1, x2, y2], ”label”: ”target name”,
+    {"bbox_2d": [x1, y1, x2, y2], ”label”: ”target name”},
+    {"bbox_2d": [x1, y1, x2, y2], ”label”: ”target name”},
     ...
 ]
 
@@ -30,6 +30,31 @@ def prepare_dataset():
         }
     ]
 
-    dataset = dataset.add_column("prompt", [messages] * len(dataset)) # type: ignore
+    left_labels = []
+    for labels in dataset["left_labels"]:
+        result = []
+        for label in labels:
+            cx, cy, w, h = label["bbox"]
+            bbox_2d = [cx - w/2, cy - h/2, cx + w/2, cy + h/2]
+            bbox_2d = [x*1000 for x in bbox_2d]
+            result += [{"bbox_2d": bbox_2d}]
+        left_labels.append(result)
 
-    return dataset
+    right_labels = []
+    for labels in dataset["right_labels"]:
+        result = []
+        for label in labels:
+            cx, cy, w, h = label["bbox"]
+            bbox_2d = [cx - w/2, cy - h/2, cx + w/2, cy + h/2]
+            bbox_2d = [x*1000 for x in bbox_2d]
+            result += [{"bbox_2d": bbox_2d}]
+        right_labels.append(result)
+
+    return Dataset.from_dict(
+        {
+            "prompt": [messages] * len(dataset),
+            "images": dataset["images"],
+            "left_labels": left_labels,
+            "right_labels": right_labels
+        }
+    )
