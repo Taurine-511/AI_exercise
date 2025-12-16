@@ -9,8 +9,10 @@ from numpy.linalg import norm
 # -------------------------------------
 model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
+
 def embed(text):
     return model.encode([text])[0]
+
 
 def cosine_sim(a, b):
     return np.dot(a, b) / (norm(a) * norm(b) + 1e-9)
@@ -90,6 +92,44 @@ def score_max_ioa(pred, labels):
     return total
 
 
+def unused_ratio(pred, labels):
+    # IoU が 0 の予測を数えるためのフラグ
+    used = [False] * len(pred)
+    if not used:
+        return 0.0
+
+    for gt in labels:
+        gt_box = gt["bbox_2d"]
+
+        best = 0.0
+        best_idx = None
+
+        # ベスト IoU を探して、その pred が使われたことを記録
+        for i, p in enumerate(pred):
+            iou_val = iou(p["bbox_2d"], gt_box)
+            if iou_val > best:
+                best_idx = i
+
+        if best_idx is not None:
+            used[best_idx] = True
+
+    return used.count(False) / len(used)
+
+
+def duplicate_iou(pred):
+    total = 0.0
+    n = len(pred)
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            box_i = pred[i]["bbox_2d"]
+            box_j = pred[j]["bbox_2d"]
+
+            total += iou(box_i, box_j)
+
+    return total
+
+
 # -------------------------------------
 #  ② IoU × ラベル類似度
 # -------------------------------------
@@ -151,8 +191,8 @@ def optimal_matching_score(pred, labels, alpha=1.0, beta=0.5):
 # -------------------------------------
 if __name__ == "__main__":
     pred = [
-        {"bbox_2d": [0,0,1000,1000], "label": "Drink"},
-        {"bbox_2d": [0,0,1000,1000], "label": "Drink"},
+        {"bbox_2d": [0, 0, 1000, 1000], "label": "Drink"},
+        {"bbox_2d": [0, 0, 1000, 1000], "label": "Drink"},
     ]
 
     labels = [

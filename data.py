@@ -35,8 +35,8 @@ def prepare_dataset():
         result = []
         for label in labels:
             cx, cy, w, h = label["bbox"]
-            bbox_2d = [cx - w/2, cy - h/2, cx + w/2, cy + h/2]
-            bbox_2d = [x*1000 for x in bbox_2d]
+            bbox_2d = [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2]
+            bbox_2d = [x * 1000 for x in bbox_2d]
             result += [{"bbox_2d": bbox_2d}]
         left_labels.append(result)
 
@@ -45,8 +45,8 @@ def prepare_dataset():
         result = []
         for label in labels:
             cx, cy, w, h = label["bbox"]
-            bbox_2d = [cx - w/2, cy - h/2, cx + w/2, cy + h/2]
-            bbox_2d = [x*1000 for x in bbox_2d]
+            bbox_2d = [cx - w / 2, cy - h / 2, cx + w / 2, cy + h / 2]
+            bbox_2d = [x * 1000 for x in bbox_2d]
             result += [{"bbox_2d": bbox_2d}]
         right_labels.append(result)
 
@@ -55,6 +55,11 @@ def prepare_dataset():
             "prompt": [messages] * len(dataset),
             "images": dataset["images"],
             "left_labels": left_labels,
-            "right_labels": right_labels
+            "right_labels": right_labels,
         }
     )
+
+
+def prepare_repeated_dataset():
+    dataset = prepare_dataset()
+    return Dataset.from_list([dataset[0]] * len(dataset))

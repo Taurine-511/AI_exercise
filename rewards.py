@@ -1,7 +1,7 @@
 import re
 import json
 
-from utils import score_max_iou, score_max_ioa
+from utils import score_max_iou, score_max_ioa, duplicate_iou, unused_ratio
 
 
 def format_reward(prompts, completions, **kwargs):
@@ -9,8 +9,8 @@ def format_reward(prompts, completions, **kwargs):
 
     format_pattern = re.compile(
         r"^\s*"
-        r"<think>\s*(.+?)\s*</think>\s*"      # group 1: think block
-        r"<answer>\s*(.+?)\s*</answer>\s*"    # group 2: answer block
+        r"<think>\s*(.+?)\s*</think>\s*"  # group 1: think block
+        r"<answer>\s*(.+?)\s*</answer>\s*"  # group 2: answer block
         r"$",
         re.DOTALL,
     )
@@ -47,8 +47,8 @@ def iou_reward(prompts, completions, **kwargs):
 
     format_pattern = re.compile(
         r"^\s*"
-        r"<think>\s*(.+?)\s*</think>\s*"      # group 1: think block
-        r"<answer>\s*(.+?)\s*</answer>\s*"    # group 2: answer block
+        r"<think>\s*(.+?)\s*</think>\s*"  # group 1: think block
+        r"<answer>\s*(.+?)\s*</answer>\s*"  # group 2: answer block
         r"$",
         re.DOTALL,
     )
@@ -66,7 +66,7 @@ def iou_reward(prompts, completions, **kwargs):
         # answer を JSON としてロード
         try:
             answer = json.loads(answer_block)
-            score = score_max_iou(answer, labels) / len(labels)
+            score = score_max_iou(answer, labels)
             scores.append(score)
         except:
             scores.append(0.0)
@@ -79,8 +79,8 @@ def ioa_reward(prompts, completions, right_labels, **kwargs):
 
     format_pattern = re.compile(
         r"^\s*"
-        r"<think>\s*(.+?)\s*</think>\s*"      # group 1: think block
-        r"<answer>\s*(.+?)\s*</answer>\s*"    # group 2: answer block
+        r"<think>\s*(.+?)\s*</think>\s*"  # group 1: think block
+        r"<answer>\s*(.+?)\s*</answer>\s*"  # group 2: answer block
         r"$",
         re.DOTALL,
     )
@@ -98,10 +98,73 @@ def ioa_reward(prompts, completions, right_labels, **kwargs):
         # answer を JSON としてロード
         try:
             answer = json.loads(answer_block)
-            score = score_max_ioa(answer, labels) / len(labels)
+            score = score_max_ioa(answer, labels)
             scores.append(score)
         except:
             scores.append(0.0)
 
     return scores
 
+
+def unused_predict_penalty(prompts, completions, right_labels, **kwargs):
+    scores = []
+
+    format_pattern = re.compile(
+        r"^\s*"
+        r"<think>\s*(.+?)\s*</think>\s*"  # group 1: think block
+        r"<answer>\s*(.+?)\s*</answer>\s*"  # group 2: answer block
+        r"$",
+        re.DOTALL,
+    )
+
+    for completion, labels in zip(completions, right_labels):
+        response = completion[0]["content"]
+        match = format_pattern.match(response)
+
+        if not match:
+            scores.append(0.0)
+            continue
+
+        answer_block = match.group(2).strip()
+
+        # answer を JSON としてロード
+        try:
+            answer = json.loads(answer_block)
+            score = -unused_ratio(answer, labels) if len(answer) > len(labels) else 0.0
+            scores.append(score)
+        except:
+            scores.append(-1)
+
+    return scores
+
+
+def duplicate_predict_penalty(prompts, completions, **kwargs):
+    scores = []
+
+    format_pattern = re.compile(
+        r"^\s*"
+        r"<think>\s*(.+?)\s*</think>\s*"  # group 1: think block
+        r"<answer>\s*(.+?)\s*</answer>\s*"  # group 2: answer block
+        r"$",
+        re.DOTALL,
+    )
+
+    for completion in completions:
+        response = completion[0]["content"]
+        match = format_pattern.match(response)
+
+        if not match:
+            scores.append(0.0)
+            continue
+
+        answer_block = match.group(2).strip()
+
+        # answer を JSON としてロード
+        try:
+            answer = json.loads(answer_block)
+            score = -duplicate_iou(answer)
+            scores.append(score)
+        except:
+            scores.append(0.0)
+
+    return scores
