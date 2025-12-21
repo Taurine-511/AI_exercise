@@ -2,18 +2,16 @@ import pathlib
 from argparse import ArgumentParser
 
 from unsloth import FastVisionModel  # isort: skip
+from dotenv import load_dotenv
 from trl import GRPOConfig, GRPOTrainer  # type: ignore
+
+load_dotenv()
 
 import wandb
 from config import Config
-from data import prepare_dataset, prepare_repeated_dataset
-from rewards import (
-    format_reward,
-    iou_reward,
-    ioa_reward,
-    unused_predict_penalty,
-    duplicate_predict_penalty,
-)
+from data import prepare_dataset
+from rewards import iou_reward, duplicate_predict_penalty, unused_predict_penalty
+
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -49,7 +47,7 @@ if __name__ == "__main__":
         model=model,
         args=GRPOConfig(**cfg.get_training_config()),
         processing_class=tokenizer,
-        reward_funcs=[iou_reward, unused_predict_penalty],
+        reward_funcs=[iou_reward, duplicate_predict_penalty, unused_predict_penalty],
         train_dataset=dataset,
     )
 
