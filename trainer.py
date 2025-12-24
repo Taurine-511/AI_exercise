@@ -1,13 +1,16 @@
 import pathlib
 from argparse import ArgumentParser
 
-from unsloth import FastVisionModel # isort: skip
-from trl import GRPOConfig, GRPOTrainer # type: ignore 
+from unsloth import FastVisionModel  # isort: skip
+from dotenv import load_dotenv
+from trl import GRPOConfig, GRPOTrainer  # type: ignore
+
+load_dotenv()
 
 import wandb
 from config import Config
 from data import prepare_dataset
-from rewards import format_reward
+from rewards import duplicate_predict_penalty, iou_reward, unused_predict_penalty
 
 if __name__ == "__main__":
     parser = ArgumentParser()
@@ -22,7 +25,12 @@ if __name__ == "__main__":
     cfg = Config.from_yaml(args.config)
 
     if cfg.use_wandb:
-        wandb.init(project=cfg.project, name=cfg.run_name, config=vars(cfg))
+        wandb.init(
+            entity="taurine511",
+            project=cfg.project,
+            name=cfg.run_name,
+            config=vars(cfg),
+        )
 
     # Model
     model, tokenizer = FastVisionModel.from_pretrained(**cfg.get_model_config())
@@ -38,7 +46,7 @@ if __name__ == "__main__":
         model=model,
         args=GRPOConfig(**cfg.get_training_config()),
         processing_class=tokenizer,
-        reward_funcs=[format_reward],
+        reward_funcs=[iou_reward, duplicate_predict_penalty, unused_predict_penalty],
         train_dataset=dataset,
     )
 
