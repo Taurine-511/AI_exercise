@@ -2,7 +2,6 @@ import json
 import re
 
 from iou_utils import duplicate_iou, score_max_ioa, score_max_iou, unused_ratio
-from utils import calc_jaccard_index_sentence_match
 
 
 def format_reward(prompts, completions, **kwargs):
@@ -164,38 +163,6 @@ def duplicate_predict_penalty(prompts, completions, **kwargs):
         try:
             answer = json.loads(answer_block)
             score = -duplicate_iou(answer)
-            scores.append(score)
-        except:
-            scores.append(0.0)
-
-    return scores
-
-
-def sentence_match_reward(prompts, completions, labels, **kwargs):
-    scores = []
-
-    format_pattern = re.compile(
-        r"^\s*"
-        r"<think>\s*(.+?)\s*</think>\s*"  # group 1: think block
-        r"<answer>\s*(.+?)\s*</answer>\s*"  # group 2: answer block
-        r"$",
-        re.DOTALL,
-    )
-
-    for completion in completions:
-        response = completion[0]["content"]
-        match = format_pattern.match(response)
-
-        if not match:
-            scores.append(0.0)
-            continue
-
-        answer_block = match.group(2).strip()
-
-        # answer を JSON としてロード
-        try:
-            answer = json.loads(answer_block)
-            score = calc_jaccard_index_sentence_match(answer, labels)
             scores.append(score)
         except:
             scores.append(0.0)

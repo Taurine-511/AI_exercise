@@ -10,8 +10,7 @@ load_dotenv()
 import wandb
 from config import Config
 from data import prepare_dataset
-from rewards import iou_reward, duplicate_predict_penalty, unused_predict_penalty
-
+from rewards import duplicate_predict_penalty, iou_reward, unused_predict_penalty
 
 if __name__ == "__main__":
     parser = ArgumentParser()
