@@ -43,6 +43,6 @@ eval_subset_1.pyとeval_muir.pyを用いてそれぞれClver　ChangeとMuir Dat
 ### データセット
 スライド記載のデータセット以外に、以下の元のデータセットより抜粋したデータセットを用いた。
 
-subset_1[https://huggingface.co/datasets/Lucas-Y04/clevr-change-subset_1]
-MUIRSUB[https://huggingface.co/datasets/Lucas-Y04/MUIRSUB]
+[subset_1](https://huggingface.co/datasets/Lucas-Y04/clevr-change-subset_1)  
+[MUIRSUB](https://huggingface.co/datasets/Lucas-Y04/MUIRSUB)
 
