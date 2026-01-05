@@ -34,3 +34,15 @@ gpu_memory_utilization: 0.8
 ```bash
 uv run trainer.py --config (YAMLファイルのパス)
 ```
+
+### 評価
+eval_subset_1.pyとeval_muir.pyを用いてそれぞれClver　ChangeとMuir Datasetの実行結果のJSONファイルを評価して、結果をJSONファイルに出力する。
+
+出力されたJSONファイルをplot.pyの引数としてとり結果のグラフを描画する。
+
+### データセット
+スライド記載のデータセット以外に、以下の元のデータセットより抜粋したデータセットを用いた。
+
+subset_1[https://huggingface.co/datasets/Lucas-Y04/clevr-change-subset_1]
+MUIRSUB[https://huggingface.co/datasets/Lucas-Y04/MUIRSUB]
+
